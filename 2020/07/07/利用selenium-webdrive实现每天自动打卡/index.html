@@ -20,30 +20,34 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":false,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="Don&#39;t stop you step">
-<meta property="og:type" content="website">
-<meta property="og:title" content="sweetcoffee&#39;s blog">
-<meta property="og:url" content="http://example.com/index.html">
+  <meta name="description" content="疫情期间，学校要求我们每天进行健康打卡，开始时候是老师帮忙一键打卡，可是后来学校却要求每个人每天必须独自打卡，对于忘性大的我来说，每天都要记得打卡实在太过困难，于是准备利用自动打卡，不过卡在了验证码的那一关。然而某天我又去搜索学校的打卡网址的时候发现了有个本校的同学写了类似的程序(参考链接)，于是乎就拿来借鉴了一下并加以优化（你懂得😉)">
+<meta property="og:type" content="article">
+<meta property="og:title" content="利用selenium webdrive实现每天自动打卡">
+<meta property="og:url" content="http://example.com/2020/07/07/%E5%88%A9%E7%94%A8selenium-webdrive%E5%AE%9E%E7%8E%B0%E6%AF%8F%E5%A4%A9%E8%87%AA%E5%8A%A8%E6%89%93%E5%8D%A1/index.html">
 <meta property="og:site_name" content="sweetcoffee&#39;s blog">
-<meta property="og:description" content="Don&#39;t stop you step">
+<meta property="og:description" content="疫情期间，学校要求我们每天进行健康打卡，开始时候是老师帮忙一键打卡，可是后来学校却要求每个人每天必须独自打卡，对于忘性大的我来说，每天都要记得打卡实在太过困难，于是准备利用自动打卡，不过卡在了验证码的那一关。然而某天我又去搜索学校的打卡网址的时候发现了有个本校的同学写了类似的程序(参考链接)，于是乎就拿来借鉴了一下并加以优化（你懂得😉)">
 <meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-07-07T14:29:42.000Z">
+<meta property="article:modified_time" content="2021-09-03T01:11:06.037Z">
 <meta property="article:author" content="甜咖啡">
+<meta property="article:tag" content="python">
+<meta property="article:tag" content="selenium">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://example.com/">
+<link rel="canonical" href="http://example.com/2020/07/07/%E5%88%A9%E7%94%A8selenium-webdrive%E5%AE%9E%E7%8E%B0%E6%AF%8F%E5%A4%A9%E8%87%AA%E5%8A%A8%E6%89%93%E5%8D%A1/">
 
 
 <script id="page-configurations">
   // https://hexo.io/docs/variables.html
   CONFIG.page = {
     sidebar: "",
-    isHome : true,
-    isPost : false,
+    isHome : false,
+    isPost : true,
     lang   : 'zh-CN'
   };
 </script>
 
-  <title>sweetcoffee's blog</title>
+  <title>利用selenium webdrive实现每天自动打卡 | sweetcoffee's blog</title>
   
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-163356587-1"></script>
     <script data-pjax>
@@ -165,115 +169,10 @@
         <div class="content-wrap">
           
 
-          <div class="content index posts-expand">
+          <div class="content post posts-expand">
             
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2020/05/04/%E4%B8%89%E8%A7%92%E7%BD%91%E5%B9%B3%E5%B7%AE%E7%95%8C%E9%9D%A2%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="甜咖啡">
-      <meta itemprop="description" content="Don't stop you step">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="sweetcoffee's blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/05/04/%E4%B8%89%E8%A7%92%E7%BD%91%E5%B9%B3%E5%B7%AE%E7%95%8C%E9%9D%A2%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1/" class="post-title-link" itemprop="url">三角网平差界面程序设计</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-05-04 18:22:09" itemprop="dateCreated datePublished" datetime="2020-05-04T18:22:09+08:00">2020-05-04</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-05-13 22:56:14" itemprop="dateModified" datetime="2020-05-13T22:56:14+08:00">2020-05-13</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E4%B8%93%E4%B8%9A%E7%9F%A5%E8%AF%86/" itemprop="url" rel="index"><span itemprop="name">专业知识</span></a>
-                </span>
-            </span>
-
-          
-    <span class="post-meta-divider">|</span>
-    <i class="fa fa-thumb-tack"></i>
-    <font color=7D26CD>置顶</font>
-    <span class="post-meta-divider">|</span>
-<br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>2.6k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>2 分钟</span>
-            </span>
-          <p></p>
-          
-          
-        </div>
-      </header>
 
     
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h3 id="总体要求"><a class="markdownIt-Anchor" href="#总体要求"></a> 总体要求</h3>
-<p>利用C++语言和Qt界面库编写导线网间接平差程序。导线网如下图所示，其中A、B为已知点，CD为基线边，又已知BE的方位角，已知角度测量中误差，距离误差加常数5mm，距离误差乘常数5mm/Km。起算数据见表1，观测了全部角度值，列于表2 。求各待定点坐标的平差值。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/05/04/%E4%B8%89%E8%A7%92%E7%BD%91%E5%B9%B3%E5%B7%AE%E7%95%8C%E9%9D%A2%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-    <div>
-      
-    </div>
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
@@ -289,10 +188,9 @@
       <meta itemprop="name" content="sweetcoffee's blog">
     </span>
       <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/07/07/%E5%88%A9%E7%94%A8selenium-webdrive%E5%AE%9E%E7%8E%B0%E6%AF%8F%E5%A4%A9%E8%87%AA%E5%8A%A8%E6%89%93%E5%8D%A1/" class="post-title-link" itemprop="url">利用selenium webdrive实现每天自动打卡</a>
-        </h2>
+        <h1 class="post-title" itemprop="name headline">
+          利用selenium webdrive实现每天自动打卡
+        </h1>
 
         <div class="post-meta">
             <span class="post-meta-item">
@@ -320,7 +218,14 @@
                 </span>
             </span>
 
-          <br>
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
             <span class="post-meta-item" title="本文字数">
               <span class="post-meta-item-icon">
                 <i class="far fa-file-word"></i>
@@ -347,318 +252,90 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>疫情期间，学校要求我们每天进行健康打卡，开始时候是老师帮忙一键打卡，可是后来学校却要求每个人每天必须独自打卡，对于忘性大的我来说，每天都要记得打卡实在太过困难，于是准备利用自动打卡，不过卡在了验证码的那一关。然而某天我又去搜索学校的打卡网址的时候发现了有个本校的同学写了类似的程序(<a href="https://blog.csdn.net/weixin_44230855/article/details/104766811" target="_blank" rel="noopener">参考链接</a>)，于是乎就拿来借鉴了一下并加以优化（你懂得😉)</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/07/07/%E5%88%A9%E7%94%A8selenium-webdrive%E5%AE%9E%E7%8E%B0%E6%AF%8F%E5%A4%A9%E8%87%AA%E5%8A%A8%E6%89%93%E5%8D%A1/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
+        <p>疫情期间，学校要求我们每天进行健康打卡，开始时候是老师帮忙一键打卡，可是后来学校却要求每个人每天必须独自打卡，对于忘性大的我来说，每天都要记得打卡实在太过困难，于是准备利用自动打卡，不过卡在了验证码的那一关。然而某天我又去搜索学校的打卡网址的时候发现了有个本校的同学写了类似的程序(<a href="https://blog.csdn.net/weixin_44230855/article/details/104766811" target="_blank" rel="noopener">参考链接</a>)，于是乎就拿来借鉴了一下并加以优化（你懂得😉)</p>
+<a id="more"></a>
+<h3 id="前置配置"><a class="markdownIt-Anchor" href="#前置配置"></a> 前置配置</h3>
+<p>Chrome,python,seleinum,webdrive</p>
+<h3 id="整体思路"><a class="markdownIt-Anchor" href="#整体思路"></a> 整体思路</h3>
+<p>首先利用webdirve获取到网址的验证码，然后登录，登录后跳转到新的界面，利用<code>switch_to_window</code>切换至新的页面，之后通过一系列操作获取到打卡界面网址，最后点击一键打卡，大功告成</p>
+<h3 id="优化部分"><a class="markdownIt-Anchor" href="#优化部分"></a> 优化部分</h3>
+<ol>
+<li>由于学校服务器不太行，经常会遇到网页进不去的时候，好在学校好心的帮我们想到了这一点，开通了四个站点，于是加个循环对四个站点分别进行尝试，成功即跳出循环</li>
+<li>原始代码是在跳转页面后再在第一个页面重新加载，虽说也可以实现，不过对于强迫症的我看到与人类操作不符的执行过程实在太过难受，因此优化了切换界面部分</li>
+<li>学校登录网址会在每天九点后会多一个时间的元素，因此初始代码会在九点后获取验证码出现问题，因此把验证码获取的范围加以缩小，使得不会被多出的元素影响到。</li>
+<li>在结尾部分把<code>driver.close()</code>替换成<code>driver.quit()</code>，这样会完全退出浏览器，这个地方在服务器端跑的时候没注意，造成了服务器段开了太多Chrome进程，非常卡顿。</li>
+</ol>
+<h3 id="自动执行"><a class="markdownIt-Anchor" href="#自动执行"></a> 自动执行</h3>
+<p>完成上述过程后，还是需要自己每天主动去执行一次，实在太过麻烦(人类不就是因为懒惰才会使科技进步的嘛:😜，正巧此时我手上有一台闲置的阿里服务器，所以我决定把它放在阿里的服务器上执行(<strong>需要进行一系列配置，此处就不多说了</strong>)，为了增加真实性，让其每天早上7:00-9:00随机时间执行。</p>
+<h3 id="完整代码"><a class="markdownIt-Anchor" href="#完整代码"></a> 完整代码</h3>
+<p>主体代码</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> selenium.webdriver</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">from</span> bs4 <span class="keyword">import</span> BeautifulSoup</span><br><span class="line"><span class="keyword">from</span> selenium.webdriver.common.keys <span class="keyword">import</span> Keys</span><br><span class="line"><span class="keyword">from</span> selenium.webdriver.chrome.options <span class="keyword">import</span> Options</span><br><span class="line">backupurl=[<span class="string">'ispstu'</span>,<span class="string">'ispstu2'</span>,<span class="string">'ispstu3'</span>,<span class="string">'ispstu4'</span>]</span><br><span class="line">user=[[<span class="string">'用户名'</span>],[<span class="string">'密码'</span>]]</span><br><span class="line">chrome_options=Options()</span><br><span class="line"><span class="comment"># 设置chrome浏览器无界面模式</span></span><br><span class="line">chrome_options.add_argument(<span class="string">'--headless'</span>)</span><br><span class="line">chrome_options.add_argument(<span class="string">'--disable-gpu'</span>)</span><br><span class="line">driver = selenium.webdriver.Chrome(options=chrome_options)</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">0</span>,len(user)):</span><br><span class="line">    count=<span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> j <span class="keyword">in</span> range(<span class="number">0</span>,<span class="number">4</span>):</span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            url = <span class="string">'https://xsswzx.cdu.edu.cn/'</span>+backupurl[j]+<span class="string">'/com_user/weblogin.asp'</span></span><br><span class="line">            time.sleep(<span class="number">5</span>)</span><br><span class="line">            driver.get(url)</span><br><span class="line">            <span class="keyword">try</span>:</span><br><span class="line">                dig_alert=driver.switch_to.alert</span><br><span class="line">                dig_alert.accept()</span><br><span class="line">                count=count+<span class="number">1</span></span><br><span class="line">                <span class="keyword">continue</span></span><br><span class="line">            <span class="keyword">except</span>:</span><br><span class="line">                <span class="keyword">pass</span></span><br><span class="line">            window_1 = driver.current_window_handle <span class="comment">#获取当前窗口handle</span></span><br><span class="line">            html = driver.page_source</span><br><span class="line">            bs = BeautifulSoup(html,<span class="string">"html.parser"</span>)</span><br><span class="line">            code = bs.find(<span class="string">'div'</span>,class_=<span class="string">'form-bottom'</span>).findAll(name=<span class="string">'div'</span>)[<span class="number">2</span>].text <span class="comment">#获得验证码</span></span><br><span class="line">            s=re.findall(<span class="string">'\d+'</span>,code)[<span class="number">0</span>]</span><br><span class="line">            time.sleep(<span class="number">5</span>)</span><br><span class="line">            <span class="comment">#输入用户名，密码，验证码</span></span><br><span class="line">            driver.find_element_by_name(<span class="string">"username"</span>).send_keys(user[i][<span class="number">0</span>])</span><br><span class="line">            driver.find_element_by_name(<span class="string">"userpwd"</span>).send_keys(user[i][<span class="number">1</span>])</span><br><span class="line">            driver.find_element_by_name(<span class="string">"code"</span>).send_keys(s)</span><br><span class="line">            driver.find_element_by_name(<span class="string">"login"</span>).click()</span><br><span class="line">            time.sleep(<span class="number">5</span>)</span><br><span class="line">            <span class="comment"># 切换到最新窗口</span></span><br><span class="line">            windows = driver.window_handles</span><br><span class="line">            <span class="keyword">for</span> current_window <span class="keyword">in</span> windows:</span><br><span class="line">                <span class="keyword">if</span> current_window != window_1:</span><br><span class="line">                    driver.switch_to.window(current_window)</span><br><span class="line">                    time.sleep(<span class="number">5</span>)</span><br><span class="line">            <span class="keyword">try</span>:</span><br><span class="line">                driver.switch_to.frame(<span class="string">'leftFrame'</span>)</span><br><span class="line">                html = driver.page_source</span><br><span class="line">                bs = BeautifulSoup(html,<span class="string">"html.parser"</span>)</span><br><span class="line">                url2 = url.rsplit(<span class="string">'/'</span>,<span class="number">1</span>)[<span class="number">0</span>]+<span class="string">'/'</span>+bs.findAll(<span class="string">'a'</span>)[<span class="number">43</span>].get(<span class="string">'href'</span>)</span><br><span class="line">                driver.get(url2)</span><br><span class="line">                time.sleep(<span class="number">1</span>)</span><br><span class="line">                driver.find_element_by_xpath(<span class="string">'//input[@value="【一键登记：无变化】"]'</span>).click()</span><br><span class="line">                dig_alert = driver.switch_to.alert</span><br><span class="line">                dig_alert.accept()</span><br><span class="line">                print(url)</span><br><span class="line">                print(time.strftime(<span class="string">"%Y-%m-%d %H:%M:%S"</span>, time.localtime()),end=<span class="string">' '</span>)</span><br><span class="line">                time.sleep(<span class="number">1</span>)</span><br><span class="line">                <span class="keyword">try</span>:</span><br><span class="line">                    dig_alert = driver.switch_to.alert</span><br><span class="line">                    dig_alert.accept()</span><br><span class="line">                <span class="keyword">except</span>:</span><br><span class="line">                    <span class="keyword">pass</span></span><br><span class="line">                driver.close() <span class="comment">#关闭窗口</span></span><br><span class="line">                driver.switch_to.window(window_1) <span class="comment">#切换到第一个窗口</span></span><br><span class="line">                print(<span class="string">"&#123;0&#125;:登记成功"</span>.format(user[i][<span class="number">0</span>]))</span><br><span class="line">                <span class="keyword">break</span></span><br><span class="line">            <span class="keyword">except</span>:</span><br><span class="line">                print(<span class="string">"&#123;0&#125;:账号或密码错误"</span>.format(user[i][<span class="number">0</span>]))</span><br><span class="line">                driver.close()</span><br><span class="line">                driver.switch_to.window(window_1)</span><br><span class="line">                <span class="keyword">break</span></span><br><span class="line">        <span class="keyword">except</span>:</span><br><span class="line">            count=count+<span class="number">1</span></span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line">    <span class="keyword">if</span> count&gt;=<span class="number">4</span>:</span><br><span class="line">        print(<span class="string">"&#123;0&#125;:登记失败"</span>.format(user[i][<span class="number">0</span>]))</span><br><span class="line">driver.quit()</span><br><span class="line">sys.exit()</span><br></pre></td></tr></table></figure>
+<p>shell代码</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">! /bin/bash</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 双小括号内可以进行整数运算</span></span><br><span class="line">randNum=$(($RANDOM%120))</span><br><span class="line"><span class="meta">#</span><span class="bash"> 大括号防止歧义</span></span><br><span class="line">sleep $&#123;randNum&#125;m</span><br><span class="line">starttime=`date +'%Y-%m-%d %H:%M:%S'`</span><br><span class="line">echo -e  "开始时间:\c" &gt;&gt;result.txt</span><br><span class="line">date "+%Y-%m-%d %H:%M:%S"&gt;&gt;result.txt</span><br><span class="line">python /root/register.py &gt;&gt; result.txt</span><br><span class="line">endtime=`date +'%Y-%m-%d %H:%M:%S'`</span><br><span class="line">start_seconds=$(date --date="$starttime" +%s);</span><br><span class="line">end_seconds=$(date --date="$endtime" +%s);</span><br><span class="line">echo "本次运行时间:"$((end_seconds-start_seconds))"s" &gt;&gt; result.txt</span><br><span class="line">echo -e "\n" &gt;&gt;result.txt</span><br></pre></td></tr></table></figure>
+    </div>
+
+    
+    
+    
+    <div>
+      
+        <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-heart"></i>感谢您的阅读-------------</div>
+     
+</div>
+      
+    </div>
+      
+
         
-      
-    </div>
 
-    
-    
-    
-    <div>
-      
-    </div>
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>甜咖啡
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://example.com/2020/07/07/%E5%88%A9%E7%94%A8selenium-webdrive%E5%AE%9E%E7%8E%B0%E6%AF%8F%E5%A4%A9%E8%87%AA%E5%8A%A8%E6%89%93%E5%8D%A1/" title="利用selenium webdrive实现每天自动打卡">http://example.com/2020/07/07/利用selenium-webdrive实现每天自动打卡/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/zh-CN" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
       <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2020/05/15/C-%E4%B8%ADdouble%E7%B1%BB%E5%9E%8B%E8%B5%8B%E5%80%BC%E7%B2%BE%E7%A1%AE%E6%80%A7%E7%9A%84%E9%97%AE%E9%A2%98/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="甜咖啡">
-      <meta itemprop="description" content="Don't stop you step">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="sweetcoffee's blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2020/05/15/C-%E4%B8%ADdouble%E7%B1%BB%E5%9E%8B%E8%B5%8B%E5%80%BC%E7%B2%BE%E7%A1%AE%E6%80%A7%E7%9A%84%E9%97%AE%E9%A2%98/" class="post-title-link" itemprop="url">C++中double类型赋值精确性的问题</a>
-        </h2>
+          <div class="post-tags">
+              <a href="/tags/python/" rel="tag"><i class="fa fa-tag"></i> python</a>
+              <a href="/tags/selenium/" rel="tag"><i class="fa fa-tag"></i> selenium</a>
+          </div>
 
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-05-15 23:16:50" itemprop="dateCreated datePublished" datetime="2020-05-15T23:16:50+08:00">2020-05-15</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-06-10 21:15:26" itemprop="dateModified" datetime="2020-06-10T21:15:26+08:00">2020-06-10</time>
-              </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>516</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>1 分钟</span>
-            </span>
-          <p></p>
-          
-          
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>今天写代码时想用<code>int((degree-minute)*60-int(degree-minute)*60)</code>得出度分秒的值，可是没想到输出的却不是自己想要的结果</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/05/15/C-%E4%B8%ADdouble%E7%B1%BB%E5%9E%8B%E8%B5%8B%E5%80%BC%E7%B2%BE%E7%A1%AE%E6%80%A7%E7%9A%84%E9%97%AE%E9%A2%98/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
         
-      
-    </div>
 
-    
-    
-    
-    <div>
-      
-    </div>
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2020/04/11/%E6%88%91%E7%9A%84%E5%8D%9A%E5%AE%A2/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="甜咖啡">
-      <meta itemprop="description" content="Don't stop you step">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="sweetcoffee's blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/04/11/%E6%88%91%E7%9A%84%E5%8D%9A%E5%AE%A2/" class="post-title-link" itemprop="url">我的博客</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-04-11 22:00:00" itemprop="dateCreated datePublished" datetime="2020-04-11T22:00:00+08:00">2020-04-11</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-05-04 18:30:07" itemprop="dateModified" datetime="2020-05-04T18:30:07+08:00">2020-05-04</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%9C%80%E7%88%B1/" itemprop="url" rel="index"><span itemprop="name">最爱</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>272</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>1 分钟</span>
-            </span>
-          <p></p>
-          
-          
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <center>
-<p><strong>夢追人</strong><br>
-<em>歌手：KOKIA</em><br>
-<em>所属专辑：夢追人</em></p></center>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/04/11/%E6%88%91%E7%9A%84%E5%8D%9A%E5%AE%A2/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
         
-      
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/05/15/C-%E4%B8%ADdouble%E7%B1%BB%E5%9E%8B%E8%B5%8B%E5%80%BC%E7%B2%BE%E7%A1%AE%E6%80%A7%E7%9A%84%E9%97%AE%E9%A2%98/" rel="prev" title="C++中double类型赋值精确性的问题">
+      <i class="fa fa-chevron-left"></i> C++中double类型赋值精确性的问题
+    </a></div>
+      <div class="post-nav-item"></div>
     </div>
-
-    
-    
-    
-    <div>
-      
-    </div>
-      <footer class="post-footer">
-        <div class="post-eof"></div>
       </footer>
+    
   </article>
   
   
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2020/04/11/%E7%9B%B8%E5%86%8C/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="甜咖啡">
-      <meta itemprop="description" content="Don't stop you step">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="sweetcoffee's blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/04/11/%E7%9B%B8%E5%86%8C/" class="post-title-link" itemprop="url">相册</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-04-11 19:06:52" itemprop="dateCreated datePublished" datetime="2020-04-11T19:06:52+08:00">2020-04-11</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-05-07 09:40:15" itemprop="dateModified" datetime="2020-05-07T09:40:15+08:00">2020-05-07</time>
-              </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>4</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>1 分钟</span>
-            </span>
-          <p></p>
-          
-          
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>一张图片<br>
-<img src="/2020/04/11/%E7%9B%B8%E5%86%8C/1.jpg" alt></p>
-
-      
-    </div>
-
-    
-    
-    
-    <div>
-      
-    </div>
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-
   
 
 
 
           </div>
           
+    <div class="comments" id="gitalk-container"></div>
 
 <script>
   window.addEventListener('tabs:register', () => {
@@ -705,6 +382,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#前置配置"><span class="nav-number">1.</span> <span class="nav-text"> 前置配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#整体思路"><span class="nav-number">2.</span> <span class="nav-text"> 整体思路</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#优化部分"><span class="nav-number">3.</span> <span class="nav-text"> 优化部分</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#自动执行"><span class="nav-number">4.</span> <span class="nav-text"> 自动执行</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#完整代码"><span class="nav-number">5.</span> <span class="nav-text"> 完整代码</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -1023,17 +701,26 @@ document.querySelectorAll('.pdfobject-container').forEach(element => {
 
 
   
-  <script src="//cdn.jsdelivr.net/npm/quicklink@1/dist/quicklink.umd.js"></script>
-  <script>
-      window.addEventListener('load', () => {
-      quicklink({
-        timeout : 3000,
-        priority: true,
-        ignores : [uri => uri.includes('#'),uri => uri === 'http://example.com/',]
-      });
-      });
-  </script>
 
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '92384d7926c2fc55c80f',
+      clientSecret: 'df4daddd81c38d5b4f9f1207f56762048859a147',
+      repo        : 'gitalk-comment',
+      owner       : 'sweetcoffee520',
+      admin       : ['sweetcoffee520'],
+      id          : 'fb01f73fb94da53ff2f3a4f4c363dfbe',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
 
 
   <script async src="/js/cursor/fireworks.js"></script>
