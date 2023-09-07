@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/satellite.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16.png">
+  <link rel="mask-icon" href="/images/satellite.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-flash.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"sweetcoffee520.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":false,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="疫情期间，学校要求我们每天进行健康打卡，开始时候是老师帮忙一键打卡，可是后来学校却要求每个人每天必须独自打卡，对于忘性大的我来说，每天都要记得打卡实在太过困难，于是准备利用自动打卡，不过卡在了验证码的那一关。然而某天我又去搜索学校的打卡网址的时候发现了有个本校的同学写了类似的程序(参考链接)，于是乎就拿来借鉴了一下并加以优化（你懂得😉)">
+<meta property="og:type" content="article">
+<meta property="og:title" content="利用selenium webdrive实现每天自动打卡">
+<meta property="og:url" content="https://sweetcoffee520.github.io/2020/07/07/%E5%88%A9%E7%94%A8selenium-webdrive%E5%AE%9E%E7%8E%B0%E6%AF%8F%E5%A4%A9%E8%87%AA%E5%8A%A8%E6%89%93%E5%8D%A1/index.html">
+<meta property="og:site_name" content="sweetcoffee&#39;s blog">
+<meta property="og:description" content="疫情期间，学校要求我们每天进行健康打卡，开始时候是老师帮忙一键打卡，可是后来学校却要求每个人每天必须独自打卡，对于忘性大的我来说，每天都要记得打卡实在太过困难，于是准备利用自动打卡，不过卡在了验证码的那一关。然而某天我又去搜索学校的打卡网址的时候发现了有个本校的同学写了类似的程序(参考链接)，于是乎就拿来借鉴了一下并加以优化（你懂得😉)">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-07-07T14:29:42.000Z">
+<meta property="article:modified_time" content="2023-09-07T11:35:36.301Z">
+<meta property="article:author" content="甜咖啡">
+<meta property="article:tag" content="python">
+<meta property="article:tag" content="selenium">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://sweetcoffee520.github.io/2020/07/07/%E5%88%A9%E7%94%A8selenium-webdrive%E5%AE%9E%E7%8E%B0%E6%AF%8F%E5%A4%A9%E8%87%AA%E5%8A%A8%E6%89%93%E5%8D%A1/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+<link rel="stylesheet" type="text/css" href="/css/injector/main.css" /><link rel="preload" as="style" href="/css/injector/light.css" /><link rel="preload" as="style" href="/css/injector/dark.css" />
+  <title>利用selenium webdrive实现每天自动打卡 | sweetcoffee's blog</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-163356587-1"></script>
+    <script data-pjax>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-163356587-1');
+      }
+    </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+   <!--pjax：防止跳转页面音乐暂停-->
+  <script src="https://cdn.jsdelivr.net/npm/pjax@0.2.8/pjax.js"></script> 
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">sweetcoffee's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">7</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">5</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">7</span></a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://sweetcoffee520.github.io/2020/07/07/%E5%88%A9%E7%94%A8selenium-webdrive%E5%AE%9E%E7%8E%B0%E6%AF%8F%E5%A4%A9%E8%87%AA%E5%8A%A8%E6%89%93%E5%8D%A1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="甜咖啡">
+      <meta itemprop="description" content="Don't stop you step">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="sweetcoffee's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          利用selenium webdrive实现每天自动打卡
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-07-07 22:29:42" itemprop="dateCreated datePublished" datetime="2020-07-07T22:29:42+08:00">2020-07-07</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-09-07 19:35:36" itemprop="dateModified" datetime="2023-09-07T19:35:36+08:00">2023-09-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%88%AC%E8%99%AB/" itemprop="url" rel="index"><span itemprop="name">爬虫</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>3.9k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>4 分钟</span>
+            </span>
+          <p></p>
+          
+          
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>疫情期间，学校要求我们每天进行健康打卡，开始时候是老师帮忙一键打卡，可是后来学校却要求每个人每天必须独自打卡，对于忘性大的我来说，每天都要记得打卡实在太过困难，于是准备利用自动打卡，不过卡在了验证码的那一关。然而某天我又去搜索学校的打卡网址的时候发现了有个本校的同学写了类似的程序(<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_44230855/article/details/104766811">参考链接</a>)，于是乎就拿来借鉴了一下并加以优化（你懂得😉)</p>
+<span id="more"></span>
+<h3 id="前置配置"><a class="markdownIt-Anchor" href="#前置配置"></a> 前置配置</h3>
+<p>Chrome,python,seleinum,webdrive</p>
+<h3 id="整体思路"><a class="markdownIt-Anchor" href="#整体思路"></a> 整体思路</h3>
+<p>首先利用webdirve获取到网址的验证码，然后登录，登录后跳转到新的界面，利用<code>switch_to_window</code>切换至新的页面，之后通过一系列操作获取到打卡界面网址，最后点击一键打卡，大功告成</p>
+<h3 id="优化部分"><a class="markdownIt-Anchor" href="#优化部分"></a> 优化部分</h3>
+<ol>
+<li>由于学校服务器不太行，经常会遇到网页进不去的时候，好在学校好心的帮我们想到了这一点，开通了四个站点，于是加个循环对四个站点分别进行尝试，成功即跳出循环</li>
+<li>原始代码是在跳转页面后再在第一个页面重新加载，虽说也可以实现，不过对于强迫症的我看到与人类操作不符的执行过程实在太过难受，因此优化了切换界面部分</li>
+<li>学校登录网址会在每天九点后会多一个时间的元素，因此初始代码会在九点后获取验证码出现问题，因此把验证码获取的范围加以缩小，使得不会被多出的元素影响到。</li>
+<li>在结尾部分把<code>driver.close()</code>替换成<code>driver.quit()</code>，这样会完全退出浏览器，这个地方在服务器端跑的时候没注意，造成了服务器段开了太多Chrome进程，非常卡顿。</li>
+</ol>
+<h3 id="自动执行"><a class="markdownIt-Anchor" href="#自动执行"></a> 自动执行</h3>
+<p>完成上述过程后，还是需要自己每天主动去执行一次，实在太过麻烦(人类不就是因为懒惰才会使科技进步的嘛:😜，正巧此时我手上有一台闲置的阿里服务器，所以我决定把它放在阿里的服务器上执行(<strong>需要进行一系列配置，此处就不多说了</strong>)，为了增加真实性，让其每天早上7:00-9:00随机时间执行。</p>
+<h3 id="完整代码"><a class="markdownIt-Anchor" href="#完整代码"></a> 完整代码</h3>
+<p>主体代码</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> selenium.webdriver</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">from</span> bs4 <span class="keyword">import</span> BeautifulSoup</span><br><span class="line"><span class="keyword">from</span> selenium.webdriver.common.keys <span class="keyword">import</span> Keys</span><br><span class="line"><span class="keyword">from</span> selenium.webdriver.chrome.options <span class="keyword">import</span> Options</span><br><span class="line">backupurl=[<span class="string">&#x27;ispstu&#x27;</span>,<span class="string">&#x27;ispstu2&#x27;</span>,<span class="string">&#x27;ispstu3&#x27;</span>,<span class="string">&#x27;ispstu4&#x27;</span>]</span><br><span class="line">user=[[<span class="string">&#x27;用户名&#x27;</span>],[<span class="string">&#x27;密码&#x27;</span>]]</span><br><span class="line">chrome_options=Options()</span><br><span class="line"><span class="comment"># 设置chrome浏览器无界面模式</span></span><br><span class="line">chrome_options.add_argument(<span class="string">&#x27;--headless&#x27;</span>)</span><br><span class="line">chrome_options.add_argument(<span class="string">&#x27;--disable-gpu&#x27;</span>)</span><br><span class="line">driver = selenium.webdriver.Chrome(options=chrome_options)</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>,<span class="built_in">len</span>(user)):</span><br><span class="line">    count=<span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> j <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>,<span class="number">4</span>):</span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            url = <span class="string">&#x27;https://xsswzx.cdu.edu.cn/&#x27;</span>+backupurl[j]+<span class="string">&#x27;/com_user/weblogin.asp&#x27;</span></span><br><span class="line">            time.sleep(<span class="number">5</span>)</span><br><span class="line">            driver.get(url)</span><br><span class="line">            <span class="keyword">try</span>:</span><br><span class="line">                dig_alert=driver.switch_to.alert</span><br><span class="line">                dig_alert.accept()</span><br><span class="line">                count=count+<span class="number">1</span></span><br><span class="line">                <span class="keyword">continue</span></span><br><span class="line">            <span class="keyword">except</span>:</span><br><span class="line">                <span class="keyword">pass</span></span><br><span class="line">            window_1 = driver.current_window_handle <span class="comment">#获取当前窗口handle</span></span><br><span class="line">            html = driver.page_source</span><br><span class="line">            bs = BeautifulSoup(html,<span class="string">&quot;html.parser&quot;</span>)</span><br><span class="line">            code = bs.find(<span class="string">&#x27;div&#x27;</span>,class_=<span class="string">&#x27;form-bottom&#x27;</span>).findAll(name=<span class="string">&#x27;div&#x27;</span>)[<span class="number">2</span>].text <span class="comment">#获得验证码</span></span><br><span class="line">            s=re.findall(<span class="string">&#x27;\d+&#x27;</span>,code)[<span class="number">0</span>]</span><br><span class="line">            time.sleep(<span class="number">5</span>)</span><br><span class="line">            <span class="comment">#输入用户名，密码，验证码</span></span><br><span class="line">            driver.find_element_by_name(<span class="string">&quot;username&quot;</span>).send_keys(user[i][<span class="number">0</span>])</span><br><span class="line">            driver.find_element_by_name(<span class="string">&quot;userpwd&quot;</span>).send_keys(user[i][<span class="number">1</span>])</span><br><span class="line">            driver.find_element_by_name(<span class="string">&quot;code&quot;</span>).send_keys(s)</span><br><span class="line">            driver.find_element_by_name(<span class="string">&quot;login&quot;</span>).click()</span><br><span class="line">            time.sleep(<span class="number">5</span>)</span><br><span class="line">            <span class="comment"># 切换到最新窗口</span></span><br><span class="line">            windows = driver.window_handles</span><br><span class="line">            <span class="keyword">for</span> current_window <span class="keyword">in</span> windows:</span><br><span class="line">                <span class="keyword">if</span> current_window != window_1:</span><br><span class="line">                    driver.switch_to.window(current_window)</span><br><span class="line">                    time.sleep(<span class="number">5</span>)</span><br><span class="line">            <span class="keyword">try</span>:</span><br><span class="line">                driver.switch_to.frame(<span class="string">&#x27;leftFrame&#x27;</span>)</span><br><span class="line">                html = driver.page_source</span><br><span class="line">                bs = BeautifulSoup(html,<span class="string">&quot;html.parser&quot;</span>)</span><br><span class="line">                url2 = url.rsplit(<span class="string">&#x27;/&#x27;</span>,<span class="number">1</span>)[<span class="number">0</span>]+<span class="string">&#x27;/&#x27;</span>+bs.findAll(<span class="string">&#x27;a&#x27;</span>)[<span class="number">43</span>].get(<span class="string">&#x27;href&#x27;</span>)</span><br><span class="line">                driver.get(url2)</span><br><span class="line">                time.sleep(<span class="number">1</span>)</span><br><span class="line">                driver.find_element_by_xpath(<span class="string">&#x27;//input[@value=&quot;【一键登记：无变化】&quot;]&#x27;</span>).click()</span><br><span class="line">                dig_alert = driver.switch_to.alert</span><br><span class="line">                dig_alert.accept()</span><br><span class="line">                <span class="built_in">print</span>(url)</span><br><span class="line">                <span class="built_in">print</span>(time.strftime(<span class="string">&quot;%Y-%m-%d %H:%M:%S&quot;</span>, time.localtime()),end=<span class="string">&#x27; &#x27;</span>)</span><br><span class="line">                time.sleep(<span class="number">1</span>)</span><br><span class="line">                <span class="keyword">try</span>:</span><br><span class="line">                    dig_alert = driver.switch_to.alert</span><br><span class="line">                    dig_alert.accept()</span><br><span class="line">                <span class="keyword">except</span>:</span><br><span class="line">                    <span class="keyword">pass</span></span><br><span class="line">                driver.close() <span class="comment">#关闭窗口</span></span><br><span class="line">                driver.switch_to.window(window_1) <span class="comment">#切换到第一个窗口</span></span><br><span class="line">                <span class="built_in">print</span>(<span class="string">&quot;&#123;0&#125;:登记成功&quot;</span>.<span class="built_in">format</span>(user[i][<span class="number">0</span>]))</span><br><span class="line">                <span class="keyword">break</span></span><br><span class="line">            <span class="keyword">except</span>:</span><br><span class="line">                <span class="built_in">print</span>(<span class="string">&quot;&#123;0&#125;:账号或密码错误&quot;</span>.<span class="built_in">format</span>(user[i][<span class="number">0</span>]))</span><br><span class="line">                driver.close()</span><br><span class="line">                driver.switch_to.window(window_1)</span><br><span class="line">                <span class="keyword">break</span></span><br><span class="line">        <span class="keyword">except</span>:</span><br><span class="line">            count=count+<span class="number">1</span></span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line">    <span class="keyword">if</span> count&gt;=<span class="number">4</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;&#123;0&#125;:登记失败&quot;</span>.<span class="built_in">format</span>(user[i][<span class="number">0</span>]))</span><br><span class="line">driver.quit()</span><br><span class="line">sys.exit()</span><br></pre></td></tr></table></figure>
+<p>shell代码</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">! /bin/bash</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">双小括号内可以进行整数运算</span></span><br><span class="line">randNum=$(($RANDOM%120))</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">大括号防止歧义</span></span><br><span class="line">sleep $&#123;randNum&#125;m</span><br><span class="line">starttime=`date +&#x27;%Y-%m-%d %H:%M:%S&#x27;`</span><br><span class="line">echo -e  &quot;开始时间:\c&quot; &gt;&gt;result.txt</span><br><span class="line">date &quot;+%Y-%m-%d %H:%M:%S&quot;&gt;&gt;result.txt</span><br><span class="line">python /root/register.py &gt;&gt; result.txt</span><br><span class="line">endtime=`date +&#x27;%Y-%m-%d %H:%M:%S&#x27;`</span><br><span class="line">start_seconds=$(date --date=&quot;$starttime&quot; +%s);</span><br><span class="line">end_seconds=$(date --date=&quot;$endtime&quot; +%s);</span><br><span class="line">echo &quot;本次运行时间:&quot;$((end_seconds-start_seconds))&quot;s&quot; &gt;&gt; result.txt</span><br><span class="line">echo -e &quot;\n&quot; &gt;&gt;result.txt</span><br></pre></td></tr></table></figure>
+    </div>
+
+    
+    
+    
+    <div>
+      
+        <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-heart"></i>感谢您的阅读-------------</div>
+     
+</div>
+      
+    </div>
+      
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>甜咖啡
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://sweetcoffee520.github.io/2020/07/07/%E5%88%A9%E7%94%A8selenium-webdrive%E5%AE%9E%E7%8E%B0%E6%AF%8F%E5%A4%A9%E8%87%AA%E5%8A%A8%E6%89%93%E5%8D%A1/" title="利用selenium webdrive实现每天自动打卡">https://sweetcoffee520.github.io/2020/07/07/利用selenium-webdrive实现每天自动打卡/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/zh-CN" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/python/" rel="tag"><i class="fa fa-tag"></i> python</a>
+              <a href="/tags/selenium/" rel="tag"><i class="fa fa-tag"></i> selenium</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/05/15/C-%E4%B8%ADdouble%E7%B1%BB%E5%9E%8B%E8%B5%8B%E5%80%BC%E7%B2%BE%E7%A1%AE%E6%80%A7%E7%9A%84%E9%97%AE%E9%A2%98/" rel="prev" title="C++中double类型赋值精确性的问题">
+      <i class="fa fa-chevron-left"></i> C++中double类型赋值精确性的问题
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/11/16/%E6%B5%B7%E6%B4%8B%E6%95%B0%E6%8D%AE%E5%B8%B8%E7%94%A8%E9%93%BE%E6%8E%A5/" rel="next" title="海洋数据常用链接">
+      海洋数据常用链接 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%89%8D%E7%BD%AE%E9%85%8D%E7%BD%AE"><span class="nav-number">1.</span> <span class="nav-text"> 前置配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B4%E4%BD%93%E6%80%9D%E8%B7%AF"><span class="nav-number">2.</span> <span class="nav-text"> 整体思路</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BC%98%E5%8C%96%E9%83%A8%E5%88%86"><span class="nav-number">3.</span> <span class="nav-text"> 优化部分</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%87%AA%E5%8A%A8%E6%89%A7%E8%A1%8C"><span class="nav-number">4.</span> <span class="nav-text"> 自动执行</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%8C%E6%95%B4%E4%BB%A3%E7%A0%81"><span class="nav-number">5.</span> <span class="nav-text"> 完整代码</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="甜咖啡"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">甜咖啡</p>
+  <div class="site-description" itemprop="description">Don't stop you step</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">7</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/sweetcoffee520" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;sweetcoffee520" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qq791227132@gmail.com" title="E-Mail → mailto:qq791227132@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+    <div class="links-of-blogroll motion-element links-of-blogroll-block">
+      <div class="links-of-blogroll-title">
+        <!-- modify icon to fire by szw -->
+        <i class="fa fa-history fa-" aria-hidden="true"></i>
+        近期文章
+      </div>
+      <ul class="links-of-blogroll-list">
+        
+        
+          <li>
+            <a href="/2022/11/17/python%E5%B8%B8%E7%94%A8%E4%BB%A3%E7%A0%81/" title="python常用代码" target="_blank">python常用代码</a>
+          </li>
+        
+          <li>
+            <a href="/2022/11/16/%E6%B5%B7%E6%B4%8B%E6%95%B0%E6%8D%AE%E5%B8%B8%E7%94%A8%E9%93%BE%E6%8E%A5/" title="海洋数据常用链接" target="_blank">海洋数据常用链接</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/07/%E5%88%A9%E7%94%A8selenium-webdrive%E5%AE%9E%E7%8E%B0%E6%AF%8F%E5%A4%A9%E8%87%AA%E5%8A%A8%E6%89%93%E5%8D%A1/" title="利用selenium webdrive实现每天自动打卡" target="_blank">利用selenium webdrive实现每天自动打卡</a>
+          </li>
+        
+          <li>
+            <a href="/2020/05/15/C-%E4%B8%ADdouble%E7%B1%BB%E5%9E%8B%E8%B5%8B%E5%80%BC%E7%B2%BE%E7%A1%AE%E6%80%A7%E7%9A%84%E9%97%AE%E9%A2%98/" title="C++中double类型赋值精确性的问题" target="_blank">C++中double类型赋值精确性的问题</a>
+          </li>
+        
+          <li>
+            <a href="/2020/05/04/%E4%B8%89%E8%A7%92%E7%BD%91%E5%B9%B3%E5%B7%AE%E7%95%8C%E9%9D%A2%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1/" title="三角网平差界面程序设计" target="_blank">三角网平差界面程序设计</a>
+          </li>
+        
+      </ul>
+    </div>
+
+<div>
+<span id="timeDate">载入天数...</span><span id="times">载入时分秒...</span>
+<script>
+    var now = new Date();
+    function createtime() {
+        var grt= new Date("04/10/2020 00:00:00");
+        now.setTime(now.getTime()+250);
+        days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days);
+        hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours);
+        if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum);
+        mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;}
+        seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+        snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;}
+        document.getElementById("timeDate").innerHTML = "本博客已运行 "+dnum+" 天 ";
+        document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒";
+    }
+setInterval("createtime()",250);
+</script>
+</div>
+
+<div class="aplayer no-destroy"
+    data-id="4969881043"
+    data-server="netease"
+    data-type="playlist"
+    data-fixed="false"
+    data-mini="false"
+    data-listFolded="true"
+    data-autoplay="false"
+    data-order="random"
+    data-volume="0.55"
+    data-theme="#cc543a"
+    data-preload="auto"
+    data-mutex="true" >
+</div>
+      </div>
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">甜咖啡</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">8k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">7 分钟</span>
+</div><script src="/live2d-widget/autoload.js"></script>
+<div class="translate-style">
+繁/简：<a id="translateLink" href="javascript:translatePage();">繁体
+</a>
+</div>
+<script type="text/javascript" src="/js/tw_zh.js"></script>
+<script type="text/javascript">
+var defaultEncoding = 2; //网站编写字体是否繁体，1-繁体，2-简体
+var translateDelay = 0; //延迟时间,若不在前, 要设定延迟翻译时间, 如100表示100ms,默认为0
+var cookieDomain = "https://sweetcoffee520.github.io/"; //Cookie地址, 一定要设定, 通常为你的网址
+var msgToTraditionalChinese = "繁体"; //此处可以更改为你想要显示的文字
+var msgToSimplifiedChinese = "简体"; //同上，但两处均不建议更改
+var translateButtonId = "translateLink"; //默认互换id
+translateInitilization();
+</script>
+        
+<div class="busuanzi-count">
+  <script data-pjax async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  
+  <script color='255, 126, 0' opacity='1' zIndex='-1' count='200' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+  loadMeting();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+<script data-pjax>
+document.querySelectorAll('.pdfobject-container').forEach(element => {
+  let url = element.dataset.target;
+  let pdfOpenParams = {
+    navpanes : 0,
+    toolbar  : 0,
+    statusbar: 0,
+    pagemode : 'thumbs',
+    view     : 'FitH'
+  };
+  let pdfOpenFragment = '#' + Object.entries(pdfOpenParams).map(([key, value]) => `${key}=${encodeURIComponent(value)}`).join('&');
+  let fullURL = `/lib/pdf/web/viewer.html?file=${encodeURIComponent(url)}${pdfOpenFragment}`;
+
+  if (NexT.utils.supportsPDFs()) {
+    element.innerHTML = `<embed class="pdfobject" src="${url + pdfOpenFragment}" type="application/pdf" style="height: ${element.dataset.height};">`;
+  } else {
+    element.innerHTML = `<iframe src="${fullURL}" style="height: ${element.dataset.height};" frameborder="0"></iframe>`;
+  }
+});
+</script>
+
+
+
+
+    <div id="pjax">
+  
+
+  
+      
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/katex@0/dist/katex.min.css">
+
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '92384d7926c2fc55c80f',
+      clientSecret: 'df4daddd81c38d5b4f9f1207f56762048859a147',
+      repo        : 'gitalk-comment',
+      owner       : 'sweetcoffee520',
+      admin       : ['sweetcoffee520'],
+      id          : 'fb01f73fb94da53ff2f3a4f4c363dfbe',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+
+  <script async src="/js/cursor/fireworks.js"></script>
+
+
+
+
+  <script src="/js/cursor/activate-power-mode.min.js"></script>
+  <script>
+    POWERMODE.colorful = true;
+    POWERMODE.shake = false;
+    document.body.addEventListener('input', POWERMODE);
+  </script>
+
+<!--崩溃欺骗-->
+<script type="text/javascript" src="/js/crash-cheat.js"></script><div class="moon-menu">
+  <div class="moon-menu-items">
+    
+    <div id="moon-menu-item-back2bottom" class="moon-menu-item" onclick="back2bottom()">
+      <i class='fa fa-chevron-down'></i>    </div>
+    
+    <div id="moon-menu-item-back2top" class="moon-menu-item" onclick="back2top()">
+      <i class='fa fa-chevron-up'></i>    </div>
+    
+  </div>
+  <div class="moon-menu-button">
+    <svg class="moon-menu-bg">
+      <circle class="moon-menu-cricle" cx="50%" cy="50%" r="44%"></circle>
+      <circle class="moon-menu-border" cx="50%" cy="50%" r="48%"></circle>
+    </svg>
+    <div class="moon-menu-content">
+      <div class="moon-menu-icon"><i class='fas fa-ellipsis-v'></i></div>
+      <div class="moon-menu-text"></div>
+    </div>
+  </div>
+</div><script src="/js/injector.js"></script>
+    </div>
+  <link rel="stylesheet" 
+  href="https://cdn.jsdelivr.net/npm/aplayer@1.10.1/dist/APlayer.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/aplayer@1.10.1/dist/APlayer.min.js"></script>
+  <script src="/js/metingjs.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome/css/font-awesome.min.css"/>
+</body>
+</html>
